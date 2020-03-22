@@ -15,7 +15,8 @@ function expressionCalculator(str) {
     let operationStack = [];
     for (let i = 0; i < expression.length; i++) {
         if(isOperation(expression[i])) {
-            if(operationStack.length > 0 && operationPriority(expression[i]) <= operationPriority(operationStack[operationStack.length-1])){
+            while (operationStack.length > 0 
+                && operationPriority(expression[i]) <= operationPriority(operationStack[operationStack.length-1])){
                 executeOperation(numberStack,operationStack);
             }
             operationStack.push(expression[i]);
@@ -79,7 +80,7 @@ function executeOperation (numberStack, operationStack) {
             break
         case '/':
             if (numberR == 0) {
-                throw Error("TypeError: Division by zero.");
+                throw Error("TypeError: Division by zero.")
             }
             numberStack.push(numberL/numberR);
 
@@ -135,4 +136,4 @@ module.exports = {
     expressionCalculator
 }
 
-console.log(expressionCalculator(" 20 - 57 * 12 - (  58 + 84 * 32 / 27  ) "));
+console.log(expressionCalculator("100 - 60 / 38 + 1 * 92"));
