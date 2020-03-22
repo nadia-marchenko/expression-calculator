@@ -7,6 +7,10 @@ function expressionCalculator(str) {
     let regex = /([\/\*\+\-\(\)])/ig;
     let strWithSpaces = str.replace(regex, ' $1 ').trim();
     let expression = strWithSpaces.split(" ").filter(symbol => symbol != "");
+    let strBrackets = expression.filter(symbol => symbol == "(" || symbol == ")").join("");
+    if(!check(strBrackets, [["(",")"]])) {
+        throw Error("ExpressionError: Brackets must be paired");
+    }
     let numberStack = [];
     let operationStack = [];
     for (let i = 0; i < expression.length; i++) {
@@ -59,13 +63,6 @@ function isOperation(str) {
     return false;
 }
 
-function isBrackets(str) {
-    if(str == "(" || str == ")") {
-        return true;
-    }
-    return false;
-}
-
 function executeOperation (numberStack, operationStack) {
     let numberR = numberStack.pop();
     let numberL = numberStack.pop();
@@ -81,13 +78,61 @@ function executeOperation (numberStack, operationStack) {
             numberStack.push(numberL*numberR);
             break
         case '/':
+            if (numberR == 0) {
+                throw Error("TypeError: Division by zero.");
+            }
             numberStack.push(numberL/numberR);
 
     } 
+}
+
+// from previous task
+function check(str, bracketsConfig) {
+    let map = new Map();
+    let stack = [];
+    for (let i = 0; i < bracketsConfig.length; i++) {
+        map.set(bracketsConfig[i][0],bracketsConfig[i][1]);
+    }
+
+    for (let i = 0; i < str.length; i++) {
+        if(map.has(str[i])) {
+            // | -> |
+            if(map.get(str[i]) == str[i]) {
+                // can we close?
+                if (str[i] == stack[stack.length - 1]) {
+                    stack.pop();
+                }
+                else {
+                    stack.push(str[i]);
+                }
+            }
+            else {
+                stack.push(str[i]);
+            }
+        }
+        if(!map.has(str[i])) {
+            if (stack.length == 0) {
+                return false;
+            }
+            if (str[i] == map.get(stack[stack.length - 1])) {
+                stack.pop();
+            }
+            else {
+                return false;
+            }
+        
+        }
+    }
+    if(stack.length == 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 module.exports = {
     expressionCalculator
 }
 
-console.log(expressionCalculator(" 49 * 63 / 58 * 36 "));
+console.log(expressionCalculator(" 20 - 57 * 12 - (  58 + 84 * 32 / 27  ) "));
